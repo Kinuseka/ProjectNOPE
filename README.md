@@ -1,2 +1,2 @@
 # ProjectNOPE
-ProjectNOPE for CS201
+ProjectNOPE for CSIT201
