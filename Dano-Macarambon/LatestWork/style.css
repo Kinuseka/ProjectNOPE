@@ -457,3 +457,33 @@ footer {
         margin-top: 0;
     }
 }
+
+/* page 2 */
+.two {
+    background-color: #FFDE59;
+}
+
+.header2 {
+    width: 100%;
+}
+
+.header2 h1 {
+    text-align: left;
+    padding: 100px;
+    color: #292929;
+    font-weight: bold;
+}
+
+.content2 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px;
+    background-color: #FFB864;
+}
+
+.message {
+    width: 70%;
+    color: #0E0504;
+}
