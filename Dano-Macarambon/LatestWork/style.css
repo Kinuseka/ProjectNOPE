@@ -489,6 +489,9 @@ footer {
 }
 
 .message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 70%;
     color: #0E0504;
 }
