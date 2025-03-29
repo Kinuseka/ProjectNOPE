@@ -461,6 +461,7 @@ footer {
 /* page 2 */
 .two {
     background-color: #FFDE59;
+    padding-bottom: 150px;
 }
 
 .header2 {
@@ -475,15 +476,23 @@ footer {
 }
 
 .content2 {
-    width: 100%;
+    height: 500px;
+    width: 70%;
+    position: relative;
+    left: 250px;
     display: flex;
-    justify-content: center;
-    align-items: center;
     padding: 50px;
     background-color: #FFB864;
+    border-radius: 50px;
+    position: relative;
+    bottom: 50px;
 }
 
 .message {
     width: 70%;
     color: #0E0504;
+}
+
+.img {
+    width: 30%;
 }
