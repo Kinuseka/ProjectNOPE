@@ -458,6 +458,12 @@ footer {
     }
 }
 
+
+/* start of vanilla code */
+* {
+    box-sizing: border-box;
+}
+
 /* page 2 */
 .two {
     background-color: #FFDE59;
@@ -496,11 +502,22 @@ footer {
     align-items: center;
     justify-content: center;
     width: 70%;
+}
+
+.message p {
     color: #0E0504;
+}
+
+#pic1 {
+    position: relative;
+    bottom: 25px;
+    left: 25px;
+    border-radius: 30px;
 }
 
 .img {
     width: 30%;
+    border: solid 2px black;
 }
 
 
@@ -547,6 +564,10 @@ footer {
     justify-content: center;
 }
 
+.pics {
+    bottom: 200px;
+}
+
 
 /* page 4 */
 .four {
@@ -586,7 +607,6 @@ footer {
     align-items: center;
     justify-content: center;
     width: 70%;
-    color: #0E0504;
 }
 
 .img {
