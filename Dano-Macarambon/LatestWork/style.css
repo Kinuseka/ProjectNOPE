@@ -517,7 +517,6 @@ footer {
 
 .img {
     width: 30%;
-    border: solid 2px black;
 }
 
 
@@ -647,14 +646,21 @@ footer {
     position: relative;
 }
 
-.message {
+.address {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 70%;
+    width: 50%;
     color: white;
 }
 
-.img {
-    width: 30%;
+.map-container {
+    width: 50%;
+}
+
+#map {
+    position: relative;
+    bottom: 25px;
+    left: 50px;
+    border-radius: 30px;
 }
