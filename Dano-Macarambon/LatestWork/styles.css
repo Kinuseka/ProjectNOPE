@@ -634,7 +634,7 @@ footer {
 }
 
 .content5 {
-    height: 450px;
+    height: 500px;
     width: 70%;
     position: relative;
     top: 50px;
@@ -646,7 +646,7 @@ footer {
     position: relative;
 }
 
-.address {
+.contacts {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -654,8 +654,24 @@ footer {
     color: white;
 }
 
+.contacts p {
+    font-size: 35px;
+}
+
+#yellow {
+    color: #FFF27A;
+}
+
 .map-container {
     width: 50%;
+}
+
+.map-container p {
+    font-size: 35px;
+    color: white;
+    position: relative;
+    bottom: 15px;
+    left: 50px;
 }
 
 #map {
