@@ -380,8 +380,8 @@ body {
 }
 
 footer {
-    border-top: 5px solid var(--primary);
-    background: var(--dark);
+    /* border-top: 10px solid var(--dark); */
+    background-color: #d4d4d496;
 }
 
 .scroll-down {
@@ -462,47 +462,30 @@ footer {
     }
 }
 
-
-/* start of vanilla code */
-
-/* page 2 */
-#page2 {
-    background-color: #FFDE59;
-}
-
-#page3 {
-    background-color: #FFD700;
-}
-
-#page4 {
-    background-color: #FFBD59;
-}
-#page5 {
-    background-color: #EFC3A4;;
-}
+/* Page styles */
 .pages {
-    /* position: relative; */
     padding-bottom: 150px;
     height: 90vh;
-    /* display: inline-block; */
+    position: relative;
+    overflow: hidden;
 }
 
-.headers {
+/* Header styles */
+.page-header {
     width: 100%;
 }
 
-.headers h1 {
-    /* position: relative; */
+.page-header h1 {
     text-align: center;
     margin-top: 1rem;
     color: #292929;
     font-weight: bold;
     top: 30px;
-    /* padding-right: 50rem; */
     left: 100px;
 }
 
-.content2 {
+/* Content styles */
+.page-content {
     height: 450px;
     width: 70%;
     position: relative;
@@ -512,9 +495,9 @@ footer {
     padding: 50px;
     background-color: #FFB864;
     border-radius: 50px;
-    position: relative;
 }
 
+/* Message styles */
 .message {
     display: flex;
     align-items: center;
@@ -526,6 +509,11 @@ footer {
     color: #0E0504;
 }
 
+/* Image styles */
+.page-img {
+    width: 30%;
+}
+
 #pic1 {
     position: relative;
     bottom: 25px;
@@ -533,37 +521,17 @@ footer {
     border-radius: 30px;
 }
 
-.img {
-    width: 30%;
-}
-
-.header3 {
-    width: 100%;
-}
-
-.header3 h1 {
-    position: relative;
-    text-align: left;
-    color: #292929;
-    font-weight: bold;
-    top: 30px;
-    left: 100px;
-}
-
-.content3 {
-    height: 450px;
+/* Offers section */
+#page3 .page-content {
     width: 90%;
-    position: relative;
-    top: 50px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     align-items: stretch;
     justify-items: center;
-    margin: 0 auto;
-    border-radius: 50px;
+    background-color: transparent;
 }
 
-.offers {
+.offer-item {
     width: 300px;
     height: 100%;
     border: solid 2px black;
@@ -573,90 +541,17 @@ footer {
     justify-content: center;
 }
 
-.pics {
+.offer-item img {
     bottom: 200px;
 }
 
-
-/* page 4 */
-/* .four {
-    background-color: #FFBD59;
-    padding-bottom: 150px;
-    height: 90vh;
-} */
-
-.header4 {
-    width: 100%;
-}
-
-.header4 h1 {
-    position: relative;
-    text-align: left;
-    color: #292929;
-    font-weight: bold;
-    top: 30px;
-    left: 100px;
-}
-
-.content4 {
-    height: 450px;
-    width: 70%;
-    position: relative;
-    top: 50px;
-    display: flex;
-    margin: 0 auto;
-    padding: 50px;
-    background-color: #FFB864;
-    border-radius: 50px;
-    position: relative;
-}
-
-.message {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 70%;
-}
-
-.img {
-    width: 30%;
-}
-
-
-/* page 5 */
-.five {
-    background-color: #EFC3A4;
-    padding-bottom: 150px;
-    height: 90vh;
-}
-
-.header5 {
-    width: 100%;
-}
-
-.header5 h1 {
-    position: relative;
-    text-align: left;
-    color: #292929;
-    font-weight: bold;
-    top: 30px;
-    left: 100px;
-}
-
-.content5 {
+/* Contact section */
+#page5 .page-content {
     height: 500px;
-    width: 70%;
-    position: relative;
-    top: 50px;
-    display: flex;
-    margin: 0 auto;
-    padding: 50px;
     background-color: #4B1F0E;
-    border-radius: 50px;
-    position: relative;
 }
 
-.contacts {
+.contact-info {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -664,11 +559,11 @@ footer {
     color: white;
 }
 
-.contacts p {
+.contact-info p {
     font-size: 35px;
 }
 
-#yellow {
+#contact-highlight {
     color: #FFF27A;
 }
 
@@ -689,4 +584,46 @@ footer {
     bottom: 25px;
     left: 50px;
     border-radius: 30px;
+}
+
+/* Page background gradients */
+#page2 {
+    background: linear-gradient(to bottom, 
+        #FFF47C 0%,
+        #FFF47C 80%,
+        #FFDE59 100%
+    );
+    position: relative;
+}
+
+#page3 {
+    background: linear-gradient(to bottom, 
+        #FFDE59 0%,
+        #FFDE59 80%,
+        #FFD700 100%
+    );
+    position: relative;
+}
+
+#page4 {
+    background: linear-gradient(to bottom, 
+        #FFD700 0%,
+        #FFD700 80%,
+        #FFBD59 100%
+    );
+    position: relative;
+}
+
+#page5 {
+    background-color: #FFBD59;
+    background: linear-gradient(to bottom, 
+        #FFBD59 0%,
+        #ffad32 80%
+    );
+    position: relative;
+}
+
+/* Remove any existing background-color properties */
+#page2, #page3, #page4, #page5 {
+    background-color: transparent !important;
 }
