@@ -9,6 +9,10 @@
     --background: #FFF47C;
 }
 
+*{
+    margin: 0px;
+    box-sizing: border-box;
+}
 /* Typography utility classes */
 .font-poppins {
     font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -460,27 +464,41 @@ footer {
 
 
 /* start of vanilla code */
-* {
-    box-sizing: border-box;
-}
 
 /* page 2 */
-.two {
+#page2 {
     background-color: #FFDE59;
-    padding-bottom: 150px;
-    height: 90vh;
 }
 
-.header2 {
+#page3 {
+    background-color: #FFD700;
+}
+
+#page4 {
+    background-color: #FFBD59;
+}
+#page5 {
+    background-color: #EFC3A4;;
+}
+.pages {
+    /* position: relative; */
+    padding-bottom: 150px;
+    height: 90vh;
+    /* display: inline-block; */
+}
+
+.headers {
     width: 100%;
 }
 
-.header2 h1 {
-    position: relative;
-    text-align: left;
+.headers h1 {
+    /* position: relative; */
+    text-align: center;
+    margin-top: 1rem;
     color: #292929;
     font-weight: bold;
     top: 30px;
+    /* padding-right: 50rem; */
     left: 100px;
 }
 
@@ -517,14 +535,6 @@ footer {
 
 .img {
     width: 30%;
-}
-
-
-/* page 3 */
-.three {
-    background-color: #FFD700;
-    padding-bottom: 150px;
-    height: 90vh;
 }
 
 .header3 {
@@ -569,11 +579,11 @@ footer {
 
 
 /* page 4 */
-.four {
+/* .four {
     background-color: #FFBD59;
     padding-bottom: 150px;
     height: 90vh;
-}
+} */
 
 .header4 {
     width: 100%;
