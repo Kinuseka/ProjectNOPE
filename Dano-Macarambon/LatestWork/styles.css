@@ -712,35 +712,43 @@ footer p {
 #page2 {
     background: linear-gradient(to bottom, 
         #FFF47C 0%,
-        #FFF47C 80%,
-        #FFDE59 100%
+        #FFEC73 20%,
+        #FFE666 40%,
+        #FFDF5C 60%,
+        #FFDB2D 100%
     );
     position: relative;
 }
 
 #page3 {
     background: linear-gradient(to bottom, 
-        #FFDE59 0%,
-        #FFDE59 80%,
-        #FFD700 100%
+        #FFDB2D 0%,
+        #FFD91A 25%,
+        #FFD700 50%,
+        #FFCE14 75%,
+        #FFCA2D 100%
     );
     position: relative;
 }
 
 #page4 {
     background: linear-gradient(to bottom, 
-        #FFD700 0%,
-        #FFD700 80%,
-        #FFBD59 100%
+        #FFCA2D 0%,
+        #FFC645 25%,
+        #FFBD59 50%,
+        #FFC16C 75%,
+        #F7C07F 100%
     );
     position: relative;
 }
 
 #page5 {
-    background-color: #FFBD59;
     background: linear-gradient(to bottom, 
-        #FFBD59 0%,
-        #ffad32 80%
+        #F7C07F 0%,
+        #F3C18E 25%,
+        #EFC39D 50%,
+        #EEC3A1 75%,
+        #EFC3A4 100%
     );
     position: relative;
 }
