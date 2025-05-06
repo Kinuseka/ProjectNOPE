@@ -630,11 +630,29 @@ footer p {
     position: relative;
 }
 
+.offer-item {
+    position: relative;
+    width: 400px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.offer-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
 .offer-item img {
     top: 0;
     border-radius: 50px;
     position: absolute;
     width: 400px;
+    transition: all 0.3s ease;
+}
+
+.offer-item:hover img {
+    filter: brightness(1.1);
 }
 
 .desc {
@@ -648,11 +666,22 @@ footer p {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: all 0.3s ease;
+}
+
+.offer-item:hover .desc {
+    background-color: #FFA000;
+    height: 270px;
 }
 
 .desc p {
     color: #292929;
     font-size: 40px;
+    transition: all 0.3s ease;
+}
+
+.offer-item:hover .desc p {
+    transform: scale(1.05);
 }
 
 /* Founders section */
