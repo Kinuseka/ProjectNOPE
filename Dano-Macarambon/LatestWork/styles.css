@@ -586,21 +586,83 @@ footer p {
     border-radius: 50px;
 }
 
+/* About Us Section */
 /* Message styles */
 .message {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 70%;
+    transition: transform 0.3s ease;
+}
+
+#page2 .page-content {
+    height: 450px;
+    width: 70%;
+    position: relative;
+    top: 50px;
+    display: flex;
+    margin: 0 auto;
+    padding: 50px;
+    background-color: #FFB864;
+    border-radius: 50px;
+    transition: all 0.4s ease;
+    overflow: hidden;
+}
+
+#page2 .page-content:hover {
+    background-color: #FFAC54; /* Slightly darker orange on hover */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px); /* Moves up slightly like page5 */
+}
+
+/* Subtle glow effect */
+#page2 .page-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none; /* Ensures the overlay doesn't interfere with child elements */
+}
+
+#page2 .page-content:hover::before {
+    opacity: 1;
+}
+
+.message:hover {
+    transform: translateY(-5px);
 }
 
 .message p {
     color: #0E0504;
+    transition: all 0.3s ease;
+}
+
+.message:hover p {
+    color: #4B1F0E; /* Slightly darker on hover */
 }
 
 /* Image styles */
 .page-img {
     width: 30%;
+    transition: transform 0.3s ease;
+}
+
+.page-img:hover {
+    transform: translateY(-5px);
+}
+
+.page-img img {
+    transition: all 0.3s ease;
+}
+
+.page-img:hover img {
+    filter: brightness(1.05);
 }
 
 #pic1 {
@@ -694,32 +756,96 @@ footer p {
 .founders {
     width: 400px;
     height: 400px;
+    border-radius: 50%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
 }
+
+/* Hover effect */
+.founders:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
 
 /* Contact section */
 #page5 .page-content {
     height: 500px;
     background-color: #4B1F0E;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
 }
 
+#page5 .page-content:hover {
+    background-color: #5A2812; /* Slightly lighter brown on hover */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px); /* Moves up slightly like inner elements */
+}
+
+/* Subtle glow effect */
+#page5 .page-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 242, 122, 0.07) 0%, rgba(255, 242, 122, 0) 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none; /* Ensures the overlay doesn't interfere with child elements */
+}
+
+#page5 .page-content:hover::before {
+    opacity: 1;
+}
+
+/* Original styles for the rest of the elements remain unchanged */
 .contact-info {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 50%;
     color: white;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.contact-info:hover {
+    transform: translateY(-5px);
+    background-color: rgba(91, 45, 24, 0.5); /* Darker, more blended with #4B1F0E */
 }
 
 .contact-info p {
     font-size: 35px;
+    transition: color 0.3s ease;
+}
+
+.contact-info:hover p {
+    color: #FFF27A;
 }
 
 #contact-highlight {
     color: #FFF27A;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.contact-info:hover #contact-highlight {
+    color: #FFFFFF;
+    text-shadow: 0 0 8px rgba(255, 242, 122, 0.8);
 }
 
 .map-container {
     width: 50%;
+    transition: transform 0.3s ease;
+}
+
+.map-container:hover {
+    transform: translateY(-5px);
 }
 
 .map-container p {
@@ -728,6 +854,11 @@ footer p {
     position: relative;
     bottom: 15px;
     left: 50px;
+    transition: color 0.3s ease;
+}
+
+.map-container:hover p {
+    color: #FFF27A;
 }
 
 #map {
@@ -735,6 +866,13 @@ footer p {
     bottom: 25px;
     left: 50px;
     border-radius: 30px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.map-container:hover #map {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border: 2px solid #FFF27A;
 }
 
 /* Page background gradients */
