@@ -14,6 +14,16 @@ const totalElement = document.getElementById('total');
 const placeOrderBtn = document.getElementById('place-order');
 const termsCheckbox = document.getElementById('terms');
 
+// Function to check if sale has ended for an item
+function hasSaleEnded(itemId) {
+    const saleKey = `sale_${itemId}`;
+    const saleEndTime = localStorage.getItem(saleKey);
+    if (!saleEndTime) return true;
+    
+    const now = new Date().getTime();
+    return now >= parseInt(saleEndTime);
+}
+
 function buttonToSubscription(){
     placeOrderBtn.textContent = "Subscribe" ;
 }
@@ -24,11 +34,18 @@ function displayCartItems() {
 
     // Display regular cart items
     cartItems.forEach(item => {
+        // Check if sale has ended for this item
+        const saleEnded = hasSaleEnded(item.id);
+        if (saleEnded && item.originalPrice) {
+            item.price = item.originalPrice;
+            delete item.originalPrice;
+        }
+
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
         
         // Check if item has original price (discounted item)
-        const originalPrice = item.originalPrice ? item.originalPrice : item.price;
+        const originalPrice = item.originalPrice || item.price;
         const isDiscounted = originalPrice > item.price;
         const itemDiscount = isDiscounted ? (originalPrice - item.price) * item.quantity : 0;
         totalDiscount += itemDiscount;
@@ -109,7 +126,6 @@ function displayCartItems() {
     }
 }
 
-// Helper function to get appropriate icon for items
 function getItemIcon(itemName) {
     const icons = {
         'N.O.P.E. Anniversary Collector\'s Box': 'fa-box-open',

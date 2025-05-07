@@ -3,29 +3,62 @@ const modal = document.getElementById('orderModal');
 const orderBtn = document.querySelector('.btn-order');
 const closeBtn = document.querySelector('.close');
 
-// Function to generate random stock
 function generateRandomStock(baseStock) {
     const variation = Math.floor(Math.random() * 16) - 10; // Random number between -10 and +5
     return Math.max(0, baseStock + variation);
 }
 
-// Sale timer functionality
+function getItemIcon(itemName) {
+    const icons = {
+        'N.O.P.E. Anniversary Collector\'s Box': 'fa-box-open',
+        'Digital Fun Pack': 'fa-gamepad',
+        'Party & Games Kit': 'fa-dice',
+        'Digital Content Subscription': 'fa-digital-tachograph',
+        'Experience Package': 'fa-star'
+    };
+    return icons[itemName] || 'fa-shopping-bag';
+}
+
 function startSaleTimer(productCard) {
     const timerElement = productCard.querySelector('.sale-timer');
-    const endTime = new Date().getTime() + (10 * 60 * 1000); // 10 minutes from now
-    timerElement.dataset.endTime = endTime;
+    const saleTag = productCard.querySelector('.sale-tag');
+    const itemId = productCard.querySelector('.add-to-cart').dataset.id;
+    const saleKey = `sale_${itemId}`;
+    
+    let saleEndTime = localStorage.getItem(saleKey);
+    if (!saleEndTime) {
+        saleEndTime = new Date().getTime() + (5 * 60 * 1000); // (Minutes * Seconds * Milliseconds) = Total Milliseconds
+        localStorage.setItem(saleKey, saleEndTime);
+    }
 
     function updateTimer() {
         const now = new Date().getTime();
-        const timeLeft = endTime - now;
+        const timeLeft = saleEndTime - now;
 
         if (timeLeft <= 0) {
             // Sale ended
             const priceElement = productCard.querySelector('.price');
             const originalPrice = productCard.querySelector('.add-to-cart').dataset.originalPrice;
-            priceElement.textContent = `₱${originalPrice}`;
+            const priceContainer = productCard.querySelector('.price-container');
+            
+            // Remove sale-related elements and classes
             productCard.classList.remove('sale');
             timerElement.remove();
+            if (saleTag) saleTag.remove();
+            
+            // Update price display
+            if (priceContainer) {
+                // If there's a price container, replace it with just the price
+                priceContainer.innerHTML = `<p class="price">₱${originalPrice}</p>`;
+            } else {
+                priceElement.textContent = `₱${originalPrice}`;
+            }
+            
+            // Update cart if item exists
+            updateCartAfterSaleEnd(itemId, originalPrice);
+            
+            // Remove sale from localStorage
+            localStorage.removeItem(saleKey);
             return;
         }
 
@@ -37,6 +70,46 @@ function startSaleTimer(productCard) {
     }
 
     updateTimer();
+}
+
+// Function to check if sale has ended for an item
+function hasSaleEnded(itemId) {
+    const saleKey = `sale_${itemId}`;
+    const saleEndTime = localStorage.getItem(saleKey);
+    if (!saleEndTime) return true;
+    
+    const now = new Date().getTime();
+    return now >= parseInt(saleEndTime);
+}
+
+// Function to get current price based on sale status
+function getCurrentPrice(itemId, salePrice, originalPrice) {
+    if (hasSaleEnded(itemId)) {
+        return originalPrice;
+    }
+    return salePrice;
+}
+
+// Function to update cart after sale ends
+function updateCartAfterSaleEnd(itemId, originalPrice) {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cartUpdated = false;
+
+    cart.forEach(item => {
+        if (item.id === itemId) {
+            item.price = parseInt(originalPrice);
+            delete item.originalPrice;
+            cartUpdated = true;
+        }
+    });
+
+    if (cartUpdated) {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartBadge();
+        if (cartModal.style.display === 'block') {
+            renderCart();
+        }
+    }
 }
 
 function AdjustFontSize(){
@@ -173,61 +246,56 @@ function updateCartBadge() {
 
 // Render cart items
 function renderCart() {
-    if (cart.length === 0) {
-        cartItemsContainer.innerHTML = `
-            <div class="empty-cart">
-                <i class="fas fa-shopping-cart"></i>
-                <p>Your cart is empty</p>
-            </div>
-        `;
-        cartTotalElement.textContent = '₱0.00';
-        return;
-    }
-
     cartItemsContainer.innerHTML = '';
-    let total = 0;
+    let subtotal = 0;
+    let totalDiscount = 0;
 
-    cart.forEach((item, index) => {
-        const itemTotal = item.price * item.quantity;
-        total += itemTotal;
-        const originalPrice = item.originalPrice || item.price;
-        const isDiscounted = originalPrice > item.price;
-        const discountPercentage = isDiscounted ? Math.round(((originalPrice - item.price) / originalPrice) * 100) : 0;
-
+    cart.forEach(item => {
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
+        
+        // Check if sale has ended
+        const saleEnded = hasSaleEnded(item.id);
+        if (saleEnded && item.originalPrice) {
+            item.price = item.originalPrice;
+            delete item.originalPrice;
+        }
+
+        // Calculate prices
+        const originalPrice = item.originalPrice || item.price;
+        const isDiscounted = originalPrice > item.price;
+        const itemDiscount = isDiscounted ? (originalPrice - item.price) * item.quantity : 0;
+        totalDiscount += itemDiscount;
+
         cartItem.innerHTML = `
             <div class="cart-item-info">
                 <img src="${item.imagePath}" alt="${item.name}" class="cart-item-image">
                 <div class="cart-item-details">
-                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-name">
+                        <i class="fas ${getItemIcon(item.name)}"></i>
+                        ${item.name}
+                    </div>
                 </div>
             </div>
-            <div class="cart-item-actions">
-                <div class="cart-item-unit-price">
-                    ${isDiscounted ? `
+            <div class="cart-item-right">
+                <div class="cart-item-quantity">
+                    <span>Quantity: ${item.quantity}</span>
+                </div>
+                ${isDiscounted ? `
+                    <div class="cart-item-price-discount">
                         <span class="original-price">₱${originalPrice.toFixed(2)}</span>
                         <span class="discounted-price">₱${item.price.toFixed(2)}</span>
-                        <span class="discount-badge">-${discountPercentage}%</span>
-                    ` : `
-                        <span>₱${item.price.toFixed(2)}</span>
-                    `}
-                </div>
-                <div class="cart-item-quantity">
-                    <button class="quantity-btn decrease" data-index="${index}">-</button>
-                    <span>${item.quantity}</span>
-                    <button class="quantity-btn increase" data-index="${index}">+</button>
-                </div>
-                <div class="cart-item-total">₱${itemTotal.toFixed(2)}</div>
-                <div class="cart-item-remove" data-index="${index}">
-                    <i class="fas fa-trash"></i>
-                </div>
+                    </div>
+                ` : `
+                    <div class="cart-item-price">₱${item.price.toFixed(2)}</div>
+                `}
             </div>
         `;
         cartItemsContainer.appendChild(cartItem);
+        subtotal += item.price * item.quantity;
     });
 
-    cartTotalElement.textContent = `₱${total.toFixed(2)}`;
+    cartTotalElement.textContent = `₱${subtotal.toFixed(2)}`;
 
     // Add event listeners for quantity buttons and remove buttons
     document.querySelectorAll('.quantity-btn').forEach(button => {
@@ -310,7 +378,7 @@ function showCustomAlert(message, type = 'success') {
     }, 3000);
 }
 
-// Update add to cart functionality to check stock
+// Update add to cart functionality
 document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function() {
         const productCard = this.closest('.product-card');
@@ -323,9 +391,12 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
         const currentStock = parseInt(stockElement.textContent.split(': ')[1]);
         const id = this.dataset.id;
         const name = this.dataset.name;
-        const price = parseInt(this.dataset.price);
+        const salePrice = parseInt(this.dataset.price);
+        const originalPrice = this.dataset.originalPrice ? parseInt(this.dataset.originalPrice) : salePrice;
         const imagePath = productCard.querySelector('.product-image img').src;
-        const originalPrice = this.dataset.originalPrice ? parseInt(this.dataset.originalPrice) : null;
+        
+        // Get current price based on sale status
+        const currentPrice = getCurrentPrice(id, salePrice, originalPrice);
         
         // Check if item already exists in cart
         const existingItem = cart.find(item => item.id === id);
@@ -335,14 +406,20 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
                 return;
             }
             existingItem.quantity++;
+            existingItem.price = currentPrice;
+            if (!hasSaleEnded(id)) {
+                existingItem.originalPrice = originalPrice;
+            } else {
+                delete existingItem.originalPrice;
+            }
         } else {
             cart.push({ 
                 id, 
                 name, 
-                price, 
+                price: currentPrice,
                 quantity: 1, 
                 imagePath,
-                originalPrice 
+                originalPrice: !hasSaleEnded(id) ? originalPrice : null
             });
         }
         localStorage.setItem('cart', JSON.stringify(cart));
