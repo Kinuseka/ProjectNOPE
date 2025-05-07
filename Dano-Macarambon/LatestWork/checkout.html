@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - NOPE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .vat {
+          margin-bottom: 1.5em; /* Adds space below VAT to prevent overlap */
+        }
+      
+        .vat-label {
+          position: relative;
+          display: inline-block;
+        }
+      
+        .vat-label sup {
+          font-size: 0.7em;
+          vertical-align: super;
+          cursor: help;
+          color: #555;
+          margin-left: 2px;
+        }
+      
+        .vat-label .tooltip-text {
+          visibility: hidden;
+          width: 240px;
+          background: #333;
+          color: #fff;
+          text-align: left;
+          padding: 6px 10px;
+          border-radius: 4px;
+          position: absolute;
+          z-index: 10;
+          bottom: 130%; /* Move tooltip above the text */
+          left: 50%;
+          transform: translateX(-50%);
+          opacity: 0;
+          transition: opacity .2s ease-in-out;
+          font-size: 0.85em;
+          line-height: 1.4;
+        }
+      
+        .vat-label sup:hover + .tooltip-text,
+        .vat-label sup:focus + .tooltip-text {
+          visibility: visible;
+          opacity: 1;
+        }
+      
+        .total {
+          font-weight: bold;
+          margin-top: 0.5em;
+        }
+      </style>
+</head>
+<body>
+    <div class="header d-flex justify-content-between align-items-center px-4">
+        <div class="logo-container">
+            <img src="img/icons/Logo_short.png" alt="NOPE Logo" class="logo-img">
+        </div>
+        <div class="tagline d-none d-md-block">NATIONAL ON PEOPLE'S ENJOYMENT</div>
+    </div>
+
+    <div class="checkout-container">
+        <h1>Checkout</h1>
+        <div class="checkout-content">
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                <div id="cart-items">
+                    <!-- Cart items will be dynamically added here -->
+                </div>
+                <div class="order-totals">
+                    <div class="subtotal">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">₱0.00</span>
+                    </div>
+                    <div class="vat">  
+                        <span class="vat-label">
+                            VAT (12%)<sup tabindex="0">?</sup>:
+                            <div class="tooltip-text">
+                              All online services consumed in the Philippines are subject to 12% VAT under RA 12023 (2024).
+                            </div>
+                        </span>
+                        <span id="vat">₱0.00</span>
+                    </div>
+                    <div class="total">
+                        <span>Total:</span>
+                        <span id="total">₱0.00</span>
+                    </div>
+                </div>
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">I agree to the Terms and Conditions</label>
+                </div>
+                <button id="place-order" class="btn-custom" disabled>Place Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="checkout.js"></script>
+</body>
+</html> 
