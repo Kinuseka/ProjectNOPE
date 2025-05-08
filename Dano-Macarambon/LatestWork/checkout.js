@@ -7,12 +7,25 @@ const subscription = urlParams.get('type') === 'subscription' ? {
     price: parseInt(urlParams.get('price'))
 } : null;
 
+// Debug output
+console.log("Cart items loaded:", cartItems);
+console.log("Subscription:", subscription);
+
 const cartItemsContainer = document.getElementById('cart-items');
 const subtotalElement = document.getElementById('subtotal');
 const vatElement = document.getElementById('vat');
 const totalElement = document.getElementById('total');
 const placeOrderBtn = document.getElementById('place-order');
 const termsCheckbox = document.getElementById('terms');
+const voucherInput = document.getElementById('voucher-input');
+const applyVoucherBtn = document.getElementById('apply-voucher');
+const voucherMessageContainer = document.getElementById('voucher-message');
+const appliedVoucherContainer = document.getElementById('applied-voucher-container');
+const voucherDiscountContainer = document.getElementById('voucher-discount-container');
+const voucherDiscountElement = document.getElementById('voucher-discount');
+
+// Current applied voucher data
+let currentVoucher = null;
 
 // Function to check if sale has ended for an item
 function hasSaleEnded(itemId) {
@@ -27,7 +40,87 @@ function hasSaleEnded(itemId) {
 function buttonToSubscription(){
     placeOrderBtn.textContent = "Subscribe" ;
 }
+
+// Check for applicable vouchers on page load
+function checkForAutoApplicableVouchers() {
+    if (typeof voucherSystem === 'undefined' || !voucherSystem) {
+        console.error("VoucherSystem not initialized!");
+        return;
+    }
+    
+    // Only check for auto-applicable vouchers if no voucher is currently applied
+    if (currentVoucher) return;
+    
+    // Make sure we're using the pre-tax amount for voucher eligibility
+    console.log("Checking for applicable vouchers with pre-tax amount:", window.currentSubtotal);
+    
+    const applicableVouchers = voucherSystem.getApplicableVouchers(
+        cartItems, 
+        subscription !== null,
+        subscription
+    );
+    
+    console.log("Applicable vouchers:", applicableVouchers);
+    
+    if (applicableVouchers.length > 0) {
+        // Sort vouchers by value (highest discount first)
+        applicableVouchers.sort((a, b) => {
+            // Calculate potential discount for each voucher
+            let discountA = 0;
+            let discountB = 0;
+            
+            if (a.type === 'percentDiscount') {
+                const subtotal = window.currentSubtotal;
+                discountA = (subtotal * a.value) / 100;
+                if (a.maxDiscount && discountA > a.maxDiscount) {
+                    discountA = a.maxDiscount;
+                }
+            }
+            
+            if (b.type === 'percentDiscount') {
+                const subtotal = window.currentSubtotal;
+                discountB = (subtotal * b.value) / 100;
+                if (b.maxDiscount && discountB > b.maxDiscount) {
+                    discountB = b.maxDiscount;
+                }
+            }
+            
+            return discountB - discountA;
+        });
+        
+        // Set the best voucher as suggestion
+        const bestVoucher = applicableVouchers[0];
+        
+        // Show a suggestion message
+        voucherMessageContainer.innerHTML = `
+            <div class="voucher-success">
+                <p>You're eligible for a voucher! Try <strong>${bestVoucher.code}</strong> for ${bestVoucher.description}</p>
+            </div>
+        `;
+    }
+}
+
 function displayCartItems() {
+    // Check if cart is empty and there's no subscription
+    if (cartItems.length === 0 && !subscription) {
+        cartItemsContainer.innerHTML = `
+            <div class="empty-checkout">
+                <i class="fas fa-shopping-cart fa-3x"></i>
+                <p>Your cart is empty</p>
+                <a href="index.html" class="btn-custom">Return to Homepage</a>
+            </div>
+        `;
+        // Hide voucher input when cart is empty
+        document.querySelector('.voucher-input-container').style.display = 'none';
+        // Hide order totals
+        document.querySelector('.order-totals').style.display = 'none';
+        // Hide terms checkbox
+        document.querySelector('.terms-checkbox').style.display = 'none';
+        // Disable place order button
+        placeOrderBtn.disabled = true;
+        return;
+    }
+
     cartItemsContainer.innerHTML = '';
     let subtotal = 0;
     let totalDiscount = 0;
@@ -106,14 +199,12 @@ function displayCartItems() {
         subtotal += subscription.price;
     }
 
-    // Calculate VAT and total
-    const vat = subtotal * 0.12;
-    const total = subtotal + vat;
+    // Store the subtotal for voucher calculations (pre-tax amount)
+    window.currentSubtotal = subtotal;
+    console.log("Pre-tax subtotal for voucher eligibility:", subtotal);
 
-    // Update totals display
-    subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
-    vatElement.textContent = `₱${vat.toFixed(2)}`;
-    totalElement.textContent = `₱${total.toFixed(2)}`;
+    // Calculate VAT and total (initial calculation without voucher)
+    calculateTotals(subtotal);
 
     // Add discount summary if there are discounted items
     if (totalDiscount > 0) {
@@ -130,6 +221,38 @@ function displayCartItems() {
             document.querySelector('.total')
         );
     }
+
+    // Check for applicable vouchers
+    checkForAutoApplicableVouchers();
+}
+
+// Calculate totals with proper application of vouchers and taxes
+function calculateTotals(subtotal, voucherDiscount = 0) {
+    // Store original subtotal for voucher eligibility (pre-tax)
+    const originalSubtotal = subtotal;
+    
+    // Apply voucher discount if exists to pre-tax amount
+    const discountedSubtotal = subtotal - voucherDiscount;
+    
+    // Calculate VAT on the discounted subtotal (tax applied after discount)
+    const vat = discountedSubtotal * 0.12;
+    const total = discountedSubtotal + vat;
+
+    // Update totals display
+    subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+    
+    // Show or hide voucher discount
+    if (voucherDiscount > 0) {
+        voucherDiscountContainer.style.display = 'flex';
+        voucherDiscountElement.textContent = `-₱${voucherDiscount.toFixed(2)}`;
+    } else {
+        voucherDiscountContainer.style.display = 'none';
+    }
+    
+    vatElement.textContent = `₱${vat.toFixed(2)}`;
+    totalElement.textContent = `₱${total.toFixed(2)}`;
+    
+    return { subtotal: originalSubtotal, voucherDiscount, vat, total };
 }
 
 function getItemIcon(itemName) {
@@ -143,14 +266,172 @@ function getItemIcon(itemName) {
     return icons[itemName] || 'fa-shopping-bag';
 }
 
+// Handle voucher application
+function applyVoucher() {
+    const code = voucherInput.value.trim().toUpperCase();
+    if (!code) {
+        showVoucherMessage('Please enter a voucher code', 'error');
+        return;
+    }
+    
+    console.log("Applying voucher code:", code);
+
+    // Check if voucherSystem is available
+    if (typeof voucherSystem === 'undefined' || !voucherSystem) {
+        console.error("VoucherSystem not initialized!");
+        showVoucherMessage('Voucher system is not available. Please try again later.', 'error');
+        return;
+    }
+
+    // Clear any existing voucher first
+    if (currentVoucher) {
+        removeVoucher();
+    }
+
+    // Ensure we're using the pre-tax subtotal for voucher eligibility
+    const preVatSubtotal = window.currentSubtotal;
+    console.log("Using pre-tax subtotal for voucher validation:", preVatSubtotal);
+
+    // Use the voucher system to validate and apply the voucher
+    const result = voucherSystem.applyVoucher(
+        code, 
+        cartItems, 
+        subscription !== null,
+        subscription
+    );
+    
+    console.log("Voucher application result:", result);
+
+    if (result.success) {
+        // Store current voucher
+        currentVoucher = {
+            code: result.code,
+            discount: result.discount,
+            description: result.voucher.description,
+            icon: result.voucher.icon
+        };
+
+        // Show success message
+        showVoucherMessage(`Voucher applied successfully! You saved ₱${result.discount.toFixed(2)}`, 'success');
+        
+        // Display applied voucher
+        displayAppliedVoucher(currentVoucher);
+        
+        // Recalculate totals using pre-tax subtotal
+        calculateTotals(preVatSubtotal, currentVoucher.discount);
+        
+        // Clear input
+        voucherInput.value = '';
+    } else {
+        // Show error message
+        showVoucherMessage(result.message, 'error');
+        
+        // Check for alternative vouchers
+        const applicableVouchers = voucherSystem.getApplicableVouchers(
+            cartItems, 
+            subscription !== null,
+            subscription
+        );
+        
+        if (applicableVouchers.length > 0) {
+            // Show alternative voucher suggestion
+            const bestVoucher = applicableVouchers[0];
+            
+            // Create suggestion element
+            const suggestionEl = document.createElement('div');
+            suggestionEl.className = 'voucher-suggestion';
+            suggestionEl.innerHTML = `
+                <p>Try <strong>${bestVoucher.code}</strong> instead for ${bestVoucher.description}</p>
+                <button class="try-suggested-voucher">Use this code</button>
+            `;
+            voucherMessageContainer.appendChild(suggestionEl);
+            
+            // Add click handler for the suggestion button
+            suggestionEl.querySelector('.try-suggested-voucher').addEventListener('click', () => {
+                voucherInput.value = bestVoucher.code;
+                applyVoucher();
+            });
+        }
+        
+        // Make sure no discount is applied
+        calculateTotals(preVatSubtotal, 0);
+    }
+}
+
+// Display applied voucher
+function displayAppliedVoucher(voucher) {
+    appliedVoucherContainer.innerHTML = `
+        <div class="applied-voucher">
+            <div class="applied-voucher-header">
+                <div class="applied-voucher-title">
+                    <div class="applied-voucher-icon">
+                        <i class="fas ${voucher.icon}"></i>
+                    </div>
+                    <div class="applied-voucher-code">${voucher.code}</div>
+                </div>
+                <button class="remove-voucher" id="remove-voucher">
+                    <i class="fas fa-times"></i> Remove
+                </button>
+            </div>
+            <div class="applied-voucher-description">${voucher.description}</div>
+            <div class="applied-voucher-discount">-₱${voucher.discount.toFixed(2)}</div>
+        </div>
+    `;
+
+    // Add event listener to remove button
+    document.getElementById('remove-voucher').addEventListener('click', removeVoucher);
+}
+
+// Remove applied voucher
+function removeVoucher() {
+    // Clear current voucher
+    currentVoucher = null;
+    
+    // Clear applied voucher display
+    appliedVoucherContainer.innerHTML = '';
+    
+    // Recalculate totals without voucher (using pre-tax subtotal)
+    calculateTotals(window.currentSubtotal, 0);
+    
+    // Clear voucher message
+    voucherMessageContainer.innerHTML = '';
+    
+    // Re-check for auto-applicable vouchers
+    checkForAutoApplicableVouchers();
+}
+
+// Show voucher success/error message
+function showVoucherMessage(message, type) {
+    voucherMessageContainer.innerHTML = `
+        <div class="voucher-${type}">
+            <p>${message}</p>
+        </div>
+    `;
+}
+
 // Handle terms checkbox
 termsCheckbox.addEventListener('change', () => {
     placeOrderBtn.disabled = !termsCheckbox.checked;
 });
 
+// Handle voucher application
+applyVoucherBtn.addEventListener('click', applyVoucher);
+
+// Handle voucher input on Enter key
+voucherInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        applyVoucher();
+    }
+});
+
 // Handle place order button click
 placeOrderBtn.addEventListener('click', () => {
     if (!termsCheckbox.checked) return;
+
+    // Mark voucher as used if one was applied
+    if (currentVoucher) {
+        voucherSystem.markVoucherAsUsed(currentVoucher.code);
+    }
 
     // Clear all cart and subscription data
     localStorage.removeItem('cart');
@@ -180,5 +461,59 @@ placeOrderBtn.addEventListener('click', () => {
     `;
 });
 
+// Function to check for soon-to-expire vouchers
+function checkForExpiringVouchers() {
+    if (typeof voucherSystem === 'undefined' || !voucherSystem) {
+        console.error("VoucherSystem not initialized for expiry check!");
+        return;
+    }
+    
+    const vouchers = voucherSystem.getAllVouchers();
+    const now = new Date();
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+    
+    // Find vouchers expiring in the next 24 hours
+    const expiringVouchers = Object.values(vouchers).filter(voucher => {
+        const expiryDate = new Date(voucher.expiry);
+        const timeUntilExpiry = expiryDate - now;
+        return timeUntilExpiry > 0 && timeUntilExpiry <= oneDayInMs;
+    });
+    
+    // If we have expiring vouchers and no banner exists yet, show banner
+    if (expiringVouchers.length > 0 && !document.querySelector('.expiring-voucher-banner')) {
+        // Sort by closest to expiry
+        expiringVouchers.sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
+        const mostUrgentVoucher = expiringVouchers[0];
+        
+        // Create banner
+        const banner = document.createElement('div');
+        banner.className = 'expiring-voucher-banner';
+        banner.innerHTML = `
+            <div class="expiring-content">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Voucher <strong>${mostUrgentVoucher.code}</strong> expires today! ${mostUrgentVoucher.description}</p>
+            </div>
+            <button class="use-expiring-voucher">Use Voucher</button>
+            <button class="close-banner"><i class="fas fa-times"></i></button>
+        `;
+        
+        // Add to page
+        document.querySelector('.checkout-container').prepend(banner);
+        
+        // Add event listeners
+        banner.querySelector('.use-expiring-voucher').addEventListener('click', () => {
+            voucherInput.value = mostUrgentVoucher.code;
+            applyVoucher();
+            banner.remove();
+        });
+        
+        banner.querySelector('.close-banner').addEventListener('click', () => {
+            banner.remove();
+        });
+    }
+}
+
 // Initialize checkout page
-displayCartItems(); 
+displayCartItems();
+checkForAutoApplicableVouchers();
+checkForExpiringVouchers(); 

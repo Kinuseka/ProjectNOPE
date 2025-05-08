@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="voucher-styles.css">
 </head>
 <body>
     <div class="header d-flex justify-content-between align-items-center px-4">
@@ -96,7 +97,7 @@
         <div class="page-header">
             <h1>What we offer</h1>
         </div>
-        <div class="page-content">
+        <div class="page-content no-scrollbar">
             <div class="offer-item">
                 <img src="img/pic2.png" height="595px">
                 <div class="desc">
@@ -173,77 +174,7 @@
             </div>
             <div class="modal-body">
                 <div class="products-grid">
-                    <div class="product-card rare">
-                        <div class="product-image">
-                            <img src="img/items/item-anniv_collector.png" alt="N.O.P.E. Anniversary Collector's Box">
-                            <div class="rare-tag">Limited</div>
-                        </div>
-                        <div class="product-info">
-                            <h3>N.O.P.E. Anniversary Collector's Box</h3>
-                            <p class="description">Exclusive enamel pins, art prints, mini booklet, and hand-numbered badge</p>
-                            <p class="price">₱1,999</p>
-                            <p class="stock" data-base-stock="5">Stock: 2</p>
-                            <button class="add-to-cart" data-id="1" data-name="N.O.P.E. Anniversary Collector's Box" data-price="1999">Add to Cart</button>
-                        </div>
-                    </div>
-                    <div class="product-card sale">
-                        <div class="product-image">
-                            <img src="img/items/item-funpack.png" alt="Digital Fun Pack">
-                            <div class="sale-tag">Sale</div>
-                            <div class="sale-timer" data-end-time=""></div>
-                        </div>
-                        <div class="product-info">
-                            <h3>Digital Fun Pack</h3>
-                            <p class="description">Printable activities and video skits bundle</p>
-                            <div class="price-container">
-                                <p class="original-price">₱1,999</p>
-                                <p class="price">₱699</p>
-                            </div>
-                            <p class="stock" data-base-stock="20">Stock: 20</p>
-                            <button class="add-to-cart" data-id="2" data-name="Digital Fun Pack" data-price="699" data-original-price="1999">Add to Cart</button>
-                        </div>
-                    </div>
-
-                    <!-- Regular Items -->
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="img/items/item-partykit.png" alt="Party & Games Kit">
-                        </div>
-                        <div class="product-info">
-                            <h3>Party & Games Kit</h3>
-                            <p class="description">Themed décor, DIY escape-room puzzles, trivia packs</p>
-                            <p class="price">₱1,500</p>
-                            <p class="stock" data-base-stock="15">Stock: 15</p>
-                            <button class="add-to-cart" data-id="3" data-name="Party & Games Kit" data-price="1500">Add to Cart</button>
-                        </div>
-                    </div>
-
-                    <!-- Subscription Items -->
-                    <div class="product-card subscription">
-                        <div class="product-image">
-                            <img src="img/items/subscription-ds.png" alt="Digital Content Subscription">
-                        </div>
-                        <div class="product-info">
-                            <h3>Digital Content Subscription</h3>
-                            <p class="description">Daily fun drops, mini-games, printable activities</p>
-                            <p class="price">₱500/month</p>
-                            <p class="subscription-label">Monthly Subscription</p>
-                            <button class="subscribe-now" data-id="4" data-name="Digital Content Subscription" data-price="500">Subscribe Now</button>
-                        </div>
-                    </div>
-
-                    <div class="product-card subscription">
-                        <div class="product-image">
-                            <img src="img/items/subscription-ep.png" alt="Experience Package">
-                        </div>
-                        <div class="product-info">
-                            <h3>Experience Package</h3>
-                            <p class="description">Virtual party hosting, storytelling workshops</p>
-                            <p class="price">₱1,800/month</p>
-                            <p class="subscription-label">Monthly Subscription</p>
-                            <button class="subscribe-now" data-id="5" data-name="Experience Package" data-price="1800">Subscribe Now</button>
-                        </div>
-                    </div>
+                    <!-- Products will be dynamically generated by the ProductSystem -->
                 </div>
             </div>
         </div>
@@ -274,6 +205,9 @@
         </div>
     </div>
 
+    <script src="voucher.js"></script>
+    <script src="product-system.js"></script>
+    <script src="floating-ad.js"></script>
     <script src="script.js"></script>
 </body>
 

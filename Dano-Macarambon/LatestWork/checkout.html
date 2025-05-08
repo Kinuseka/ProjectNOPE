@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="voucher-styles.css">
     <style>
         .vat {
           margin-bottom: 1.5em; /* Adds space below VAT to prevent overlap */
@@ -63,7 +64,6 @@
           font-weight: 500;
           padding: 2px 8px;
           border-radius: 4px;
-
         }
 
         /* Updated cart item layout with grid alignment */
@@ -117,8 +117,122 @@
           color: var(--dark);
           justify-self: end;
         }
+        
         .subscription-item .cart-item-right {
           grid-template-columns: 1fr;
+        }
+        
+        /* Empty cart styling */
+        .empty-checkout {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 50px 0;
+          text-align: center;
+          color: #666;
+        }
+        
+        .empty-checkout i {
+          color: #ccc;
+          margin-bottom: 15px;
+        }
+        
+        .empty-checkout p {
+          font-size: 1.2em;
+          margin-bottom: 25px;
+        }
+        
+        .empty-checkout .btn-custom {
+          display: inline-block;
+          margin-top: 10px;
+          padding: 10px 20px;
+          transition: all 0.3s ease;
+        }
+        
+        /* Mobile-responsive styles */
+        @media (max-width: 768px) {
+          .checkout-container {
+            padding: 15px;
+          }
+          
+          .cart-item {
+            flex-direction: column;
+            padding: 15px 10px;
+          }
+          
+          .cart-item-info {
+            max-width: 100%;
+            margin-bottom: 15px;
+            padding-right: 0;
+          }
+          
+          .cart-item-right {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 10px;
+          }
+          
+          .cart-item-price,
+          .cart-item-price-discount,
+          .cart-item-quantity,
+          .cart-item-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+          }
+          
+          .cart-item-price:before,
+          .cart-item-price-discount:before {
+            content: "Price:";
+            font-weight: 500;
+          }
+          
+          .cart-item-quantity:before {
+            content: "Quantity:";
+            font-weight: 500;
+          }
+          
+          .cart-item-total:before {
+            content: "Total:";
+            font-weight: 500;
+          }
+          
+          /* Improve spacing between sections */
+          .order-totals > div {
+            margin-bottom: 12px;
+          }
+          
+          .voucher-input-container {
+            margin: 20px 0;
+          }
+          
+          .voucher-form {
+            flex-direction: column;
+            gap: 10px;
+          }
+          
+          .voucher-input {
+            width: 100%;
+          }
+          
+          .apply-voucher-btn {
+            width: 100%;
+          }
+          
+          .cart-item-quantity {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+          }
+          
+          .quantity-label {
+            margin-left: auto;
+          }
         }
       </style>
 </head>
@@ -140,10 +254,23 @@
                 <div id="cart-items">
                     <!-- Cart items will be dynamically added here -->
                 </div>
+                <div class="voucher-input-container">
+                    <h3>Have a voucher?</h3>
+                    <div class="voucher-form">
+                        <input type="text" id="voucher-input" placeholder="Enter voucher code" class="voucher-input" aria-label="Voucher code input">
+                        <button id="apply-voucher" class="apply-voucher-btn" aria-label="Apply voucher code">Apply</button>
+                    </div>
+                    <div id="voucher-message" aria-live="polite"></div>
+                    <div id="applied-voucher-container" aria-live="polite"></div>
+                </div>
                 <div class="order-totals">
                     <div class="subtotal">
                         <span>Subtotal:</span>
                         <span id="subtotal">₱0.00</span>
+                    </div>
+                    <div id="voucher-discount-container" style="display: none;">
+                        <span>Voucher Discount:</span>
+                        <span id="voucher-discount">-₱0.00</span>
                     </div>
                     <div class="vat">  
                         <span class="vat-label">
@@ -168,6 +295,7 @@
         </div>
     </div>
 
+    <script src="voucher.js"></script>
     <script src="checkout.js"></script>
 </body>
 </html> 

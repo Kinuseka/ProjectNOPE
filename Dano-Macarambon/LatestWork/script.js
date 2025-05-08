@@ -9,6 +9,15 @@ function generateRandomStock(baseStock) {
 }
 
 function getItemIcon(itemName) {
+    // Use product system to get the icon if available
+    if (typeof productSystem !== 'undefined') {
+        const product = productSystem.products.find(p => p.name === itemName);
+        if (product && product.icon) {
+            return product.icon;
+        }
+    }
+    
+    // Fallback to original mapping
     const icons = {
         'N.O.P.E. Anniversary Collector\'s Box': 'fa-box-open',
         'Digital Fun Pack': 'fa-gamepad',
@@ -17,6 +26,34 @@ function getItemIcon(itemName) {
         'Experience Package': 'fa-star'
     };
     return icons[itemName] || 'fa-shopping-bag';
+}
+
+// Function to populate products in the order modal
+function populateProductsGrid() {
+    const productsGrid = document.querySelector('.products-grid');
+    if (!productsGrid) return;
+    
+    // Check if product system is available
+    if (typeof productSystem === 'undefined') {
+        console.error("ProductSystem not initialized!");
+        return;
+    }
+    
+    // Generate HTML for all products
+    productsGrid.innerHTML = productSystem.generateProductHTML();
+    
+    // Initialize sale timers and update stock
+    document.querySelectorAll('.product-card').forEach(card => {
+        if (card.classList.contains('sale')) {
+            startSaleTimer(card);
+        }
+        if (!card.classList.contains('subscription')) {
+            updateProductStock(card);
+        }
+    });
+    
+    // Reattach event listeners
+    attachProductEventListeners();
 }
 
 function startSaleTimer(productCard) {
@@ -153,6 +190,9 @@ function updateProductStock(productCard) {
 
 // Open modal when Order Now button is clicked
 orderBtn.addEventListener('click', () => {
+    // Populate products when opening modal
+    populateProductsGrid();
+    
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
     AdjustFontSize(); // Adjust font so it doesnt look weird
@@ -172,7 +212,7 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// Initialize sale timers and stock updates
+// Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     const productCards = document.querySelectorAll('.product-card');
     
@@ -184,7 +224,342 @@ document.addEventListener('DOMContentLoaded', function() {
             updateProductStock(card);
         }
     });
+
+    // Initialize What We Offer carousel
+    initOfferCarousel();
+    
+    // Add extra handling for the What We Offer section to prevent scrollbars
+    const whatWeOfferSection = document.querySelector('#page3 .page-content');
+    if (whatWeOfferSection) {
+        whatWeOfferSection.classList.add('no-scrollbar');
+        whatWeOfferSection.style.overflow = 'hidden';
+        
+        // Add resize listener to ensure scrollbars are hidden at all viewport sizes
+        window.addEventListener('resize', function() {
+            whatWeOfferSection.style.overflow = 'hidden';
+        });
+    }
 });
+
+// Attach event listeners to product buttons
+function attachProductEventListeners() {
+    // Add to cart buttons
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            const productCard = this.closest('.product-card');
+            const stockElement = productCard.querySelector('.stock');
+            if (stockElement && stockElement.textContent === 'Sold Out') {
+                showCustomAlert('This item is sold out!', 'error');
+                return;
+            }
+
+            const currentStock = parseInt(stockElement.textContent.split(': ')[1]);
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+            const salePrice = parseInt(this.dataset.price);
+            const originalPrice = this.dataset.originalPrice ? parseInt(this.dataset.originalPrice) : salePrice;
+            
+            // Get image path from product system
+            let imagePath = productCard.querySelector('.product-image img').src;
+            if (typeof productSystem !== 'undefined') {
+                const product = productSystem.getProductById(id);
+                if (product) {
+                    imagePath = product.imagePath;
+                }
+            }
+            
+            // Get current price based on sale status
+            const currentPrice = getCurrentPrice(id, salePrice, originalPrice);
+            
+            // Check if item already exists in cart
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                if (existingItem.quantity >= currentStock) {
+                    showCustomAlert('Cannot add more than available stock!', 'error');
+                    return;
+                }
+                existingItem.quantity++;
+                existingItem.price = currentPrice;
+                if (!hasSaleEnded(id)) {
+                    existingItem.originalPrice = originalPrice;
+                } else {
+                    delete existingItem.originalPrice;
+                }
+            } else {
+                cart.push({ 
+                    id, 
+                    name, 
+                    price: currentPrice,
+                    quantity: 1, 
+                    imagePath,
+                    originalPrice: !hasSaleEnded(id) ? originalPrice : null
+                });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBadge();
+            showCustomAlert('Added to cart!');
+        });
+    });
+    
+    // Subscribe buttons
+    document.querySelectorAll('.subscribe-now').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+            const price = parseInt(this.dataset.price);
+            
+            // Create query parameters for subscription
+            const params = new URLSearchParams({
+                type: 'subscription',
+                id: id,
+                name: name,
+                price: price
+            });
+            
+            // Clear cart when subscribing
+            localStorage.removeItem('cart');
+            window.location.href = `checkout.html?${params.toString()}`;
+        });
+    });
+}
+
+// Carousel for What We Offer section
+function initOfferCarousel() {
+    const offerItems = document.querySelectorAll('#page3 .offer-item');
+    if (offerItems.length === 0) return;
+    
+    // Create carousel controls if they don't exist
+    const pageContent = document.querySelector('#page3 .page-content');
+    if (!document.querySelector('.carousel-controls')) {
+        const controls = document.createElement('div');
+        controls.className = 'carousel-controls';
+        
+        // Previous button
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'carousel-btn prev';
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.setAttribute('aria-label', 'Previous item');
+        
+        // Dots container
+        const dots = document.createElement('div');
+        dots.className = 'carousel-dots';
+        
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'carousel-btn next';
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.setAttribute('aria-label', 'Next item');
+        
+        // Create dots for each item
+        offerItems.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.className = 'carousel-dot';
+            dot.setAttribute('data-index', index);
+            dot.setAttribute('aria-label', `View item ${index + 1}`);
+            dots.appendChild(dot);
+        });
+        
+        // Add everything to controls
+        controls.appendChild(prevBtn);
+        controls.appendChild(dots);
+        controls.appendChild(nextBtn);
+        
+        // Add controls to page
+        pageContent.appendChild(controls);
+        
+        // Position the dots at bottom
+        dots.style.position = 'absolute';
+        dots.style.bottom = '-30px';
+        dots.style.left = '50%';
+        dots.style.transform = 'translateX(-50%)';
+    }
+    
+    // Initialize state
+    let currentSlide = 0;
+    let isAnimating = false;
+    let carouselInterval; // Keep track of the interval
+    
+    updateCarouselState();
+    
+    // Add event listeners
+    const prevBtn = document.querySelector('#page3 .carousel-btn.prev');
+    const nextBtn = document.querySelector('#page3 .carousel-btn.next');
+    const dots = document.querySelectorAll('#page3 .carousel-dot');
+    const controls = document.querySelector('.carousel-controls');
+    
+    // Function to restart the timer
+    function resetAutoRotate() {
+        // Clear existing interval
+        if (carouselInterval) {
+            clearInterval(carouselInterval);
+        }
+        
+        // Start new timer
+        startCarouselAutoRotate();
+    }
+    
+    prevBtn.addEventListener('click', () => {
+        if (isAnimating) return;
+        isAnimating = true;
+        
+        // Reset the timer when user clicks
+        resetAutoRotate();
+        
+        // Add exit animation to current slide
+        offerItems[currentSlide].classList.add('exit');
+        
+        setTimeout(() => {
+            // After exit animation, update current slide
+            offerItems[currentSlide].classList.remove('active', 'exit');
+            currentSlide = (currentSlide - 1 + offerItems.length) % offerItems.length;
+            updateCarouselState();
+            isAnimating = false;
+        }, 500); // Match this timing with CSS animation duration
+    });
+    
+    nextBtn.addEventListener('click', () => {
+        if (isAnimating) return;
+        isAnimating = true;
+        
+        // Reset the timer when user clicks
+        resetAutoRotate();
+        
+        // Add exit animation to current slide
+        offerItems[currentSlide].classList.add('exit');
+        
+        setTimeout(() => {
+            // After exit animation, update current slide
+            offerItems[currentSlide].classList.remove('active', 'exit');
+            currentSlide = (currentSlide + 1) % offerItems.length;
+            updateCarouselState();
+            isAnimating = false;
+        }, 500); // Match this timing with CSS animation duration
+    });
+    
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            if (isAnimating || currentSlide === index) return;
+            isAnimating = true;
+            
+            // Reset the timer when user clicks
+            resetAutoRotate();
+            
+            // Add exit animation to current slide
+            offerItems[currentSlide].classList.add('exit');
+            
+            setTimeout(() => {
+                // After exit animation, update to new slide
+                offerItems[currentSlide].classList.remove('active', 'exit');
+                currentSlide = index;
+                updateCarouselState();
+                isAnimating = false;
+            }, 500);
+        });
+    });
+    
+    // Function to check window size and update display
+    function checkWindowSize() {
+        if (window.innerWidth > 1200) {
+            // On larger screens, show all items and hide controls
+            offerItems.forEach(item => {
+                item.classList.remove('active', 'exit');
+                item.style.display = 'block';
+                item.style.opacity = '1';
+            });
+            controls.style.display = 'none';
+        } else {
+            // On smaller screens, use carousel and show controls
+            controls.style.display = 'block';
+            updateCarouselState();
+        }
+    }
+    
+    // Add responsive behavior
+    window.addEventListener('resize', checkWindowSize);
+    
+    // Initial check for screen size
+    checkWindowSize();
+    
+    // Auto-rotate carousel on smaller screens
+    function startCarouselAutoRotate() {
+        if (window.innerWidth <= 1200) {
+            carouselInterval = setInterval(() => {
+                if (document.visibilityState === 'visible' && !isAnimating) {
+                    // Use the same animation pattern as the next button
+                    isAnimating = true;
+                    
+                    // Add exit animation to current slide
+                    offerItems[currentSlide].classList.add('exit');
+                    
+                    setTimeout(() => {
+                        // After exit animation, update current slide
+                        offerItems[currentSlide].classList.remove('active', 'exit');
+                        currentSlide = (currentSlide + 1) % offerItems.length;
+                        updateCarouselState();
+                        isAnimating = false;
+                    }, 500);
+                }
+            }, 8000); // Increase from 5000 to 8000 to give more time for viewing content
+        }
+    }
+    
+    function stopCarouselAutoRotate() {
+        clearInterval(carouselInterval);
+    }
+    
+    // Start auto-rotate
+    startCarouselAutoRotate();
+    
+    // Pause on hover or touch
+    pageContent.addEventListener('mouseenter', stopCarouselAutoRotate);
+    pageContent.addEventListener('mouseleave', startCarouselAutoRotate);
+    pageContent.addEventListener('touchstart', stopCarouselAutoRotate, {passive: true});
+    pageContent.addEventListener('touchend', startCarouselAutoRotate);
+    
+    // Handle visibility change
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            startCarouselAutoRotate();
+        } else {
+            stopCarouselAutoRotate();
+        }
+    });
+    
+    // Function to update carousel state
+    function updateCarouselState() {
+        // First hide all items
+        offerItems.forEach(item => {
+            item.classList.remove('active');
+            if (window.innerWidth <= 1200) {
+                item.style.display = 'none';
+                item.style.opacity = '0';
+            }
+        });
+        
+        // Show the current item
+        offerItems[currentSlide].classList.add('active');
+        if (window.innerWidth <= 1200) {
+            offerItems[currentSlide].style.display = 'block';
+            // Use setTimeout to trigger a smooth fade-in
+            setTimeout(() => {
+                offerItems[currentSlide].style.opacity = '1';
+            }, 50);
+        }
+        
+        // Update dots
+        const dots = document.querySelectorAll('#page3 .carousel-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSlide);
+        });
+        
+        // Ensure no scrollbars appear
+        const pageContent = document.querySelector('#page3 .page-content');
+        if (pageContent) {
+            pageContent.classList.add('no-scrollbar');
+            pageContent.style.overflow = 'hidden';
+        }
+    }
+}
 
 // Cart functionality
 const cartModal = document.getElementById('cartModal');
@@ -286,9 +661,12 @@ function renderCart() {
                     `}
                 </div>
                 <div class="cart-item-quantity">
-                    <button class="quantity-btn decrease" data-index="${index}">-</button>
-                    <span>${item.quantity}</span>
-                    <button class="quantity-btn increase" data-index="${index}">+</button>
+                    <span>Quantity:</span>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn decrease" data-index="${index}">-</button>
+                        <span class="cart-quantity-val">${item.quantity}</span>
+                        <button class="quantity-btn increase" data-index="${index}">+</button>
+                    </div>
                 </div>
                 <div class="cart-item-total">₱${itemTotal.toFixed(2)}</div>
                 <div class="cart-item-remove" data-index="${index}">
@@ -345,27 +723,6 @@ function handleRemoveItem(e) {
     renderCart();
 }
 
-// Subscribe functionality
-document.querySelectorAll('.subscribe-now').forEach(button => {
-    button.addEventListener('click', function() {
-        const id = this.dataset.id;
-        const name = this.dataset.name;
-        const price = parseInt(this.dataset.price);
-        
-        // Create query parameters for subscription
-        const params = new URLSearchParams({
-            type: 'subscription',
-            id: id,
-            name: name,
-            price: price
-        });
-        
-        // Clear cart when subscribing
-        localStorage.removeItem('cart');
-        window.location.href = `checkout.html?${params.toString()}`;
-    });
-});
-
 function showCustomAlert(message, type = 'success') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `custom-alert ${type}`;
@@ -382,54 +739,4 @@ function showCustomAlert(message, type = 'success') {
         setTimeout(() => alertDiv.remove(), 300);
     }, 3000);
 }
-
-// Update add to cart functionality
-document.querySelectorAll('.add-to-cart').forEach(button => {
-    button.addEventListener('click', function() {
-        const productCard = this.closest('.product-card');
-        const stockElement = productCard.querySelector('.stock');
-        if (stockElement && stockElement.textContent === 'Sold Out') {
-            showCustomAlert('This item is sold out!', 'error');
-            return;
-        }
-
-        const currentStock = parseInt(stockElement.textContent.split(': ')[1]);
-        const id = this.dataset.id;
-        const name = this.dataset.name;
-        const salePrice = parseInt(this.dataset.price);
-        const originalPrice = this.dataset.originalPrice ? parseInt(this.dataset.originalPrice) : salePrice;
-        const imagePath = productCard.querySelector('.product-image img').src;
-        
-        // Get current price based on sale status
-        const currentPrice = getCurrentPrice(id, salePrice, originalPrice);
-        
-        // Check if item already exists in cart
-        const existingItem = cart.find(item => item.id === id);
-        if (existingItem) {
-            if (existingItem.quantity >= currentStock) {
-                showCustomAlert('Cannot add more than available stock!', 'error');
-                return;
-            }
-            existingItem.quantity++;
-            existingItem.price = currentPrice;
-            if (!hasSaleEnded(id)) {
-                existingItem.originalPrice = originalPrice;
-            } else {
-                delete existingItem.originalPrice;
-            }
-        } else {
-            cart.push({ 
-                id, 
-                name, 
-                price: currentPrice,
-                quantity: 1, 
-                imagePath,
-                originalPrice: !hasSaleEnded(id) ? originalPrice : null
-            });
-        }
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartBadge();
-        showCustomAlert('Added to cart!');
-    });
-}); 
 
