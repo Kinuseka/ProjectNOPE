@@ -13,7 +13,11 @@ class ProductSystem {
                 name: "N.O.P.E. Anniversary Collector's Box",
                 description: "Exclusive enamel pins, art prints, mini booklet, and hand-numbered badge",
                 price: 1999,
-                baseStock: 5,
+                baseStock: 3,
+                stock_randomizer: {
+                    min: -3,
+                    max: 1
+                },
                 imagePath: "img/items/item-anniv_collector.png",
                 type: "rare",
                 icon: "fa-box-open"
@@ -25,6 +29,10 @@ class ProductSystem {
                 price: 699,
                 originalPrice: 1999,
                 baseStock: 20,
+                stock_randomizer: {
+                    min: -10,
+                    max: 15
+                },
                 imagePath: "img/items/item-funpack.png",
                 type: "sale",
                 icon: "fa-gamepad"
@@ -34,7 +42,11 @@ class ProductSystem {
                 name: "Party & Games Kit",
                 description: "Themed décor, DIY escape-room puzzles, trivia packs",
                 price: 1500,
-                baseStock: 15,
+                baseStock: 35,
+                stock_randomizer: {
+                    min: -10,
+                    max: 50
+                },
                 imagePath: "img/items/item-partykit.png",
                 type: "regular",
                 icon: "fa-dice"
@@ -59,6 +71,20 @@ class ProductSystem {
                 imagePath: "img/items/subscription-ep.png",
                 type: "subscription",
                 icon: "fa-star"
+            },
+            {
+                id: "6",
+                name: "School Supplies Kit",
+                description: "School supplies bundle",
+                price: 1499,
+                baseStock: 200,
+                stock_randomizer: {
+                    min: -100,
+                    max: 50
+                },
+                imagePath: "img/items/item-schoolkit.png",
+                type: "regular",
+                icon: "fa-school"
             }
         ];
         

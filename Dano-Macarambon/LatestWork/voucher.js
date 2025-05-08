@@ -37,13 +37,12 @@ class VoucherSystem {
             {
                 code: 'STUDENT20',
                 type: 'percentDiscount',
-                value: 20,
+                value: 30,
                 minQuantity: 1,
                 eligibleItems: 'School Supplies Kit',
-                description: 'All School Supplies Kit 20% off (max ₱500)',
+                description: 'All School Supplies Kit 30% off (min. purchase 2999)',
                 excludeSaleItems: true,
-                minPurchase: 2000,
-                maxDiscount: 500,
+                minPurchase: 2999,
                 excludeSubscription: true,
                 expiryDays: 30,
                 isOneTime: false,
@@ -394,12 +393,12 @@ class VoucherSystem {
                         });
                     }
                     
-                    // Apply cap if exists
-                    if (voucher.maxDiscount && discount > voucher.maxDiscount) {
-                        console.log(`Discount capped at ₱${voucher.maxDiscount} (was ₱${discount.toFixed(2)})`);
-                        discount = voucher.maxDiscount;
-                    }
                 }
+            }
+            // Apply cap if exists
+            if (voucher.maxDiscount && discount > voucher.maxDiscount) {
+                console.log(`Discount capped at ₱${voucher.maxDiscount} (was ₱${discount.toFixed(2)})`);
+                discount = voucher.maxDiscount;
             }
             
             if (isNaN(discount) || discount < 0) {

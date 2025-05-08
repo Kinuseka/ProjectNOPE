@@ -3,8 +3,9 @@ const modal = document.getElementById('orderModal');
 const orderBtn = document.querySelector('.btn-order');
 const closeBtn = document.querySelector('.close');
 
-function generateRandomStock(baseStock) {
-    const variation = Math.floor(Math.random() * 16) - 10; // Random number between -10 and +5
+function generateRandomStock(baseStock, min, max) {
+    const range = max - min + 1;
+    const variation = Math.floor(Math.random() * range) + min;
     return Math.max(0, baseStock + variation);
 }
 
@@ -164,10 +165,25 @@ function AdjustFontSize(){
 // Update stock display
 function updateProductStock(productCard) {
     const stockElement = productCard.querySelector('.stock');
+    
     if (!stockElement || !stockElement.dataset.baseStock) return; // Skip if no stock element or no base stock
 
     const baseStock = parseInt(stockElement.dataset.baseStock);
-    const currentStock = generateRandomStock(baseStock);
+    const productId = productCard.querySelector('.add-to-cart').dataset.id;
+    
+    // Get min/max from product system
+    let min = -10;
+    let max = 5;
+    
+    if (typeof productSystem !== 'undefined' && productId) {
+        const product = productSystem.getProductById(productId);
+        if (product && product.stock_randomizer) {
+            min = product.stock_randomizer.min;
+            max = product.stock_randomizer.max;
+        }
+    }
+    
+    const currentStock = generateRandomStock(baseStock, min, max);
     
     if (currentStock <= 0) {
         stockElement.textContent = 'Sold Out';
@@ -575,6 +591,9 @@ updateCartBadge();
 
 // Open cart modal
 cartIcon.addEventListener('click', () => {
+    // Ensure product grid is loaded before opening cart
+    ensureProductGridLoaded();
+    
     cartModal.style.display = 'block';
     document.body.style.overflow = 'hidden';
     renderCart();
@@ -693,6 +712,10 @@ function renderCart() {
 function handleQuantityChange(e) {
     const index = parseInt(e.target.dataset.index);
     const item = cart[index];
+    
+    // Ensure product grid is loaded before checking stock
+    ensureProductGridLoaded();
+    
     const productCard = document.querySelector(`.product-card [data-id="${item.id}"]`).closest('.product-card');
     const stockElement = productCard.querySelector('.stock');
     const currentStock = parseInt(stockElement.textContent.split(': ')[1]);
@@ -738,5 +761,14 @@ function showCustomAlert(message, type = 'success') {
         alertDiv.classList.remove('show');
         setTimeout(() => alertDiv.remove(), 300);
     }, 3000);
+}
+
+// Function to preload product grid without displaying modal
+function ensureProductGridLoaded() {
+    // Check if products are already loaded
+    if (!document.querySelector('.products-grid .product-card')) {
+        // Products not loaded, populate grid without showing modal
+        populateProductsGrid();
+    }
 }
 
