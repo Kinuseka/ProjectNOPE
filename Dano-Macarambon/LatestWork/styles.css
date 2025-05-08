@@ -1566,9 +1566,9 @@ footer p {
     transition: all 0.3s ease;
 }
 
-.cart-item-quantity span {
+.cart-quantity-val {
     display: inline-block;
-    width: 1.5em;
+    width: 25px;
     text-align: center;
 }
 
@@ -1590,6 +1590,7 @@ footer p {
     overflow: hidden; /* Hide overflow */
     text-overflow: ellipsis; /* Show ellipsis for overflow */
 }
+
 
 .cart-item-remove {
     color: #ff4444;
