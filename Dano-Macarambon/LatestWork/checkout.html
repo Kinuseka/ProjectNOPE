@@ -54,12 +54,80 @@
           font-weight: bold;
           margin-top: 0.5em;
         }
+        
+        /* Stripe-like quantity styling */
+        .quantity-label {
+          display: inline-block;
+          white-space: nowrap;
+          font-size: 0.95em;
+          font-weight: 500;
+          padding: 2px 8px;
+          border-radius: 4px;
+
+        }
+
+        /* Updated cart item layout with grid alignment */
+        .cart-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 15px;
+          border-bottom: 1px solid #eee;
+        }
+
+        .cart-item-info {
+          flex: 1;
+          max-width: 60%;
+          padding-right: 10px;
+        }
+
+        .cart-item-right {
+          display: grid;
+          grid-template-columns: 100px 80px 100px;
+          align-items: center;
+          gap: 10px;
+          justify-content: end;
+        }
+
+        .cart-item-price,
+        .cart-item-price-discount {
+          text-align: right;
+          justify-self: end;
+        }
+
+        .original-price {
+          display: block;
+          text-decoration: line-through;
+          color: #999;
+          font-size: 0.85em;
+        }
+
+        .discounted-price {
+          color: #e74c3c;
+          font-weight: 600;
+        }
+
+        .cart-item-quantity {
+          text-align: center;
+          justify-self: center;
+        }
+
+        .cart-item-total {
+          text-align: right;
+          font-weight: 600;
+          color: var(--dark);
+          justify-self: end;
+        }
+        .subscription-item .cart-item-right {
+          grid-template-columns: 1fr;
+        }
       </style>
 </head>
 <body>
     <div class="header d-flex justify-content-between align-items-center px-4">
         <div class="logo-container">
-            <img src="img/icons/Logo_short.png" alt="NOPE Logo" class="logo-img">
+            <a href="index.html">
+                <img src="img/icons/Logo_short.png" alt="NOPE Logo" class="logo-img">
+            </a>
         </div>
         <div class="tagline d-none d-md-block">NATIONAL ON PEOPLE'S ENJOYMENT</div>
     </div>

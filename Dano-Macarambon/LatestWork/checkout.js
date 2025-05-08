@@ -49,6 +49,9 @@ function displayCartItems() {
         const isDiscounted = originalPrice > item.price;
         const itemDiscount = isDiscounted ? (originalPrice - item.price) * item.quantity : 0;
         totalDiscount += itemDiscount;
+        
+        // Calculate total price for this item
+        const itemTotal = item.price * item.quantity;
 
         cartItem.innerHTML = `
             <div class="cart-item-info">
@@ -61,17 +64,20 @@ function displayCartItems() {
                 </div>
             </div>
             <div class="cart-item-right">
-                <div class="cart-item-quantity">
-                    <span>Quantity: ${item.quantity}</span>
-                </div>
                 ${isDiscounted ? `
-                    <div class="cart-item-price-discount">
-                        <span class="original-price">₱${originalPrice.toFixed(2)}</span>
-                        <span class="discounted-price">₱${item.price.toFixed(2)}</span>
-                    </div>
+                <div class="cart-item-price-discount">
+                    <span class="original-price">₱${originalPrice.toFixed(2)}</span>
+                    <span class="discounted-price">₱${item.price.toFixed(2)}</span>
+                </div>
                 ` : `
-                    <div class="cart-item-price">₱${item.price.toFixed(2)}</div>
+                <div class="cart-item-price">₱${item.price.toFixed(2)}</div>
                 `}
+                <div class="cart-item-quantity">
+                    <span class="quantity-label">× ${item.quantity}</span>
+                </div>
+                <div class="cart-item-total">
+                    <span>₱${itemTotal.toFixed(2)}</span>
+                </div>
             </div>
         `;
         cartItemsContainer.appendChild(cartItem);
@@ -115,7 +121,7 @@ function displayCartItems() {
         discountElement.className = 'discount-summary';
         discountElement.innerHTML = `
             <div class="discount-amount">
-                <span>Total Savings:</span>
+                <span>Total Savings:&nbsp;</span>
                 <span>₱${totalDiscount.toFixed(2)}</span>
             </div>
         `;
