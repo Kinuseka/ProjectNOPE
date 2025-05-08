@@ -246,56 +246,61 @@ function updateCartBadge() {
 
 // Render cart items
 function renderCart() {
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = `
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <p>Your cart is empty</p>
+            </div>
+        `;
+        cartTotalElement.textContent = '₱0.00';
+        return;
+    }
     cartItemsContainer.innerHTML = '';
-    let subtotal = 0;
-    let totalDiscount = 0;
-
-    cart.forEach(item => {
-        const cartItem = document.createElement('div');
-        cartItem.className = 'cart-item';
-        
-        // Check if sale has ended
-        const saleEnded = hasSaleEnded(item.id);
-        if (saleEnded && item.originalPrice) {
-            item.price = item.originalPrice;
-            delete item.originalPrice;
-        }
-
-        // Calculate prices
+    let total = 0;
+    cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
         const originalPrice = item.originalPrice || item.price;
         const isDiscounted = originalPrice > item.price;
-        const itemDiscount = isDiscounted ? (originalPrice - item.price) * item.quantity : 0;
-        totalDiscount += itemDiscount;
+        const discountPercentage = isDiscounted ? Math.round(((originalPrice - item.price) / originalPrice) * 100) : 0;
+
+        const cartItem = document.createElement('div');
+        cartItem.className = 'cart-item';
 
         cartItem.innerHTML = `
             <div class="cart-item-info">
                 <img src="${item.imagePath}" alt="${item.name}" class="cart-item-image">
                 <div class="cart-item-details">
-                    <div class="cart-item-name">
-                        <i class="fas ${getItemIcon(item.name)}"></i>
-                        ${item.name}
-                    </div>
+                    <div class="cart-item-name">${item.name}</div>
                 </div>
             </div>
-            <div class="cart-item-right">
-                <div class="cart-item-quantity">
-                    <span>Quantity: ${item.quantity}</span>
-                </div>
-                ${isDiscounted ? `
-                    <div class="cart-item-price-discount">
+            <div class="cart-item-actions">
+                <div class="cart-item-unit-price">
+                    ${isDiscounted ? `
                         <span class="original-price">₱${originalPrice.toFixed(2)}</span>
                         <span class="discounted-price">₱${item.price.toFixed(2)}</span>
-                    </div>
-                ` : `
-                    <div class="cart-item-price">₱${item.price.toFixed(2)}</div>
-                `}
+                        <span class="discount-badge">-${discountPercentage}%</span>
+                    ` : `
+                        <span>₱${item.price.toFixed(2)}</span>
+                    `}
+                </div>
+                <div class="cart-item-quantity">
+                    <button class="quantity-btn decrease" data-index="${index}">-</button>
+                    <span>${item.quantity}</span>
+                    <button class="quantity-btn increase" data-index="${index}">+</button>
+                </div>
+                <div class="cart-item-total">₱${itemTotal.toFixed(2)}</div>
+                <div class="cart-item-remove" data-index="${index}">
+                    <i class="fas fa-trash"></i>
+                </div>
             </div>
         `;
         cartItemsContainer.appendChild(cartItem);
-        subtotal += item.price * item.quantity;
+
     });
 
-    cartTotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+    cartTotalElement.textContent = `₱${total.toFixed(2)}`;
 
     // Add event listeners for quantity buttons and remove buttons
     document.querySelectorAll('.quantity-btn').forEach(button => {
